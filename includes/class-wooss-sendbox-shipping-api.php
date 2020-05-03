@@ -1,0 +1,101 @@
+<?php
+
+/**
+ * This class makes a call to sendbox API
+ */
+class Wooss_Sendbox_Shipping_API
+{
+	/**
+	 * Connect_to_api.
+	 *
+	 * @param  mixed $api_url API URL.
+	 * @param  mixed $args arguments.
+	 * @param  mixed $method_type GET|POST.
+	 *
+	 * @return mixed
+	 */
+	public function connect_to_api($api_url, $args, $method_type)
+	{
+		if ('GET' == $method_type) {
+			$response = wp_remote_get(esc_url_raw($api_url), $args);
+		} elseif ('POST' == $method_type) {
+			$response = wp_remote_post(esc_url_raw($api_url), $args);
+		}
+
+		return $response;
+	}
+
+	/**
+	 * This function allow to get response code from  api
+	 */
+	/**
+	 * Get_api_response_code.
+	 *
+	 * @param  mixed $api_url API URL.
+	 * @param  mixed $args Parameters, Array is required with credentials.
+	 * @param  mixed $method (GET|POST).
+	 *
+	 * @return object
+	 */
+	public function get_api_response_code($api_url, $args, $method)
+	{
+		$api_call      = $this->connect_to_api($api_url, $args, $method);
+		$response_code = wp_remote_retrieve_response_code($api_call);
+		return $response_code;
+	}
+
+	/**
+	 * This function gets body content from  api.
+	 *
+	 * @param  mixed $api_url API URL.
+	 * @param  mixed $args Parameters, Array is required with credentials.
+	 * @param  mixed $method (GET|POST).
+	 *
+	 * @return object
+	 */
+	public function get_api_response_body($api_url, $args, $method)
+	{
+		$api_call      = $this->connect_to_api($api_url, $args, $method);
+		$response_body = json_decode(wp_remote_retrieve_body($api_call));
+		return $response_body;
+	}
+
+	/**
+	 * This function returns the necessary url that needs Sendbox.
+	 *
+	 * @param  mixed $url_type URL Type.
+	 *
+	 * @return string
+	 */
+	public function get_sendbox_api_url($url_type)
+	{
+		if ('delivery_quote' == $url_type) {
+			$url = 'https://api.sendbox.ng/v1/merchant/shipments/delivery_quote';
+		} elseif ('countries' == $url_type) {
+			$url = 'https://api.sendbox.co/auth/countries?page_by={' . '"per_page"' . ':264}';
+		} elseif ('states' == $url_type) {
+			$url = 'https://api.sendbox.co/auth/states';
+		} elseif ('shipments' == $url_type) {
+			$url = 'https://api.sendbox.ng/v1/merchant/shipments';
+		} elseif ('item_type' == $url_type) {
+			$url = 'https://api.sendbox.ng/v1/item_types';
+		} elseif ('profile' == $url_type) {
+			$url = 'https://api.sendbox.ng/v1/merchant/profile';
+		} else {
+			$url = '';
+		}
+		return $url;
+	}
+
+
+	/**
+	 * Static function for getting nigeria states.
+	 *
+	 * @return array
+	 */
+	public function get_nigeria_states()
+	{
+		$state = array('Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Benue', 'Borno', 'Bayelsa', 'Cross River', 'Delta', 'Ebonyi ', 'Edo', 'Ekiti', 'Enugu ', 'Federal Capital Territory', 'Gombe ', 'Jigawa ', ' Imo ', ' Kaduna', 'Kebbi ', 'Kano', ' Kogi', ' Lagos', 'Katsina', 'Kwara', 'Nasarawa', 'Niger ', 'Ogun', 'Ondo ', 'Rivers', 'Oyo', 'Osun', 'Sokoto', 'Plateau', 'Taraba', 'Yobe', 'Zamfara');
+		return $state;
+	}
+}
