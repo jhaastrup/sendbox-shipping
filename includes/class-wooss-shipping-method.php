@@ -54,28 +54,9 @@ function wooss_shipping_method()
 				if (null !== $this->enabled) {
 					update_option('wooss_option_enable', $this->enabled);
 				}
-				add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
 				add_action('woocommerce_update_options_shipping_' . $this->id, array($this, 'process_admin_options'));
 			}
 
-			/**
-			 * Load required scripts and styles.
-			 *
-			 * @return void
-			 */
-			public function enqueue_scripts()
-			{
-				wp_enqueue_script('wooss_js_script', plugin_dir_url(__FILE__) . 'assets/js/script.js', array('jquery'), $this->version, false);
-				wp_localize_script(
-					'wooss_js_script',
-					'wooss_ajax_object',
-					[
-						'wooss_ajax_url'      => admin_url('admin-ajax.php'),
-						'wooss_ajax_security' => wp_create_nonce('wooss-ajax-security-nonce'),
-					]
-				);
-				wp_enqueue_style('wooss_css_styles', plugin_dir_url(__FILE__) . 'assets/css/styles.css', array(), $this->version, 'all');
-			}
 
 			/**
 			 * Init methods shipping forms.
@@ -349,7 +330,7 @@ function wooss_form_fields()
 			$custom_styles = 'display:none';
 		}
 		$wooss_display_fields = get_option('wooss_connexion_status');
-		if (1 == $wooss_display_fields) {
+		if ( $wooss_display_fields) {
 			$display_fields = 'display : inline';
 			$hide_button    = 'display : none';
 		}
@@ -382,19 +363,12 @@ function wooss_form_fields()
 
 		?>
 
-		<div>
+		<div class="wooss-shipping-settings" >
 
 			<strong><label for="wooss_basic_auth"><?php esc_attr_e('API KEY :', 'wooss'); ?> </label><input type="text" class="wooss-text" placeholder="Basic X0000X0000000000AH" name="wooss_basic_auth" value="<?php esc_attr_e($wooss_basic_auth, 'wooss'); ?>"></strong> <br />
 			<button type="submit" class="button-primary wooss-connect-sendbox wooss_fields" style="<?php esc_attr_e($custom_styles); ?>"><?php esc_attr_e('Connect to Sendbox', 'wooss'); ?></button><br />
 
-			<div class="wooss_necessary_fields" style="
-																																																																																																																																																																																																																																																																																																																																																															<?php
-																																																																																																																																																																																																																																																																																																																																																															if (1 == $wooss_display_fields) {
-																																																																																																																																																																																																																																																																																																																																																																$display_fields = 'display : inline';
-																																																																																																																																																																																																																																																																																																																																																																echo $display_fields;
-																																																																																																																																																																																																																																																																																																																																																															}
-																																																																																																																																																																																																																																																																																																																																																															?>
-																																																																																																																																																																																																																																																																																																																																																																										">
+       <div class="wooss_necessary_fields" style="<?php  $display_fields = 'display : none'; if ($wooss_display_fields) {$display_fields = 'display : inline'; echo $display_fields;} else { echo $display_fields; }?>">
 				<table style="width:100%">
 
 					<tr>
@@ -513,9 +487,10 @@ function wooss_form_fields()
 						</td>
 					</tr>
 				</table>
-			</div>
-			<button type="submit" class="button-primary wooss_save_button"><?php esc_attr_e('Sync changes', 'wooss'); ?></button>
+				<button type="submit" class="button-primary wooss_save_button"><?php esc_attr_e('Sync changes', 'wooss'); ?></button>
 
+			</div>
+			
 			<span class="wooss_errors_pages wooss_fields"></span>
 		</div>
 	<?php
@@ -640,7 +615,7 @@ function action_wooss_checkout_update_order_review($array, $int){
     
     return;
 }
-add_action('woocommerce_checkout_update_order_review','action_wooss_checkout_update_order_review', 10, 2);
+//add_action('woocommerce_checkout_update_order_review','action_wooss_checkout_update_order_review', 10, 2);
 
 
 

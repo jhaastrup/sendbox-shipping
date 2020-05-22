@@ -75,6 +75,7 @@ class Wooss_Admin
 		 * class.
 		 */
 		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/wooss-admin.css', array(), $this->version, 'all');
+		wp_enqueue_style('wooss_shipping_methods_css_styles', plugin_dir_url(__FILE__) . '../includes/assets/css/styles.css', array(), $this->version, 'all');
 	}
 
 	/**
@@ -105,6 +106,17 @@ class Wooss_Admin
 				'wooss_ajax_security' => wp_create_nonce('wooss-ajax-security-nonce'),
 			]
 		);
+
+		wp_enqueue_script('wooss_shipping_method_js_script', plugin_dir_url(__FILE__) . '../includes/assets/js/script.js', array('jquery'), $this->version, false);
+		wp_localize_script(
+			'wooss_shipping_method_js_script',
+			'wooss_ajax_object',
+			[
+				'wooss_ajax_url'      => admin_url('admin-ajax.php'),
+				'wooss_ajax_security' => wp_create_nonce('wooss-ajax-security-nonce'),
+			]
+		);
+		
 	}
 
 	/**

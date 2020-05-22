@@ -37,6 +37,17 @@
         "?page=wc-settings&tab=shipping&section=wooss"
       ) > 0
     ) {
+      //by The Blacker
+      $(document).on('click dbclick','#woocommerce_wooss_enabled',function(e){
+        $('div.wooss-shipping-settings').hide();
+        if ($(this).prop('checked')){
+           $('div.wooss-shipping-settings').show();
+        }
+      }); 
+
+
+
+
       var wc_button_save = $("button.button-primary.woocommerce-save-button");
       wc_button_save.show();
       var wooss_basic_auth;
@@ -50,9 +61,9 @@
       wooss_connect_btn.on("click", function(e) {
         e.preventDefault();
         wooss_basic_auth = $("input[name='wooss_basic_auth'").val();
-        function reloadPage() {
-          window.location.reload();
-        }
+        // function reloadPage() {
+        //   window.location.reload();
+        // }
         wooss_loader.show();
         var data = {
           wooss_basic_auth: wooss_basic_auth

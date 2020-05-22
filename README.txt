@@ -103,7 +103,10 @@ clicking <a href = "http://bit.ly/sendbox-shipping-docs">Here</a> </b>
 <b>3.0.0</b>
 <p>Ability for admin to edit destination details before requesting a new shipment</p>
 <p>Get rates for all countries</p>
-<p>Improve in UX </p>
+<p>Improve in UX </p> 
+
+<b>3.1.0</b>
+<p>fixed some bugs with the javascript</p>
 
 
 
