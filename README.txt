@@ -2,8 +2,8 @@
 Contributors: Sendbox
 Donate link: #
 Tags: shipping, shipping zones, local shipping, international shipping
-Requires at least: 3.0.1
-Tested up to: 5.2
+Requires at least:  5.5.1
+Tested up to:  5.5.1
 Stable tag: 4.3 
 Requires PHP: 5.3
 License: GPLv2 or later
