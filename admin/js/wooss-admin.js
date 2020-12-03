@@ -73,7 +73,7 @@
       ).val();
      /*  var wooss_destination_country = $(
         "input[name = 'wooss_destination_country']"
-      ).val(); 
+      ).val();
       var wooss_destination_state = $(
         "input[name = 'wooss_destination_state']"
       ).val();*/
@@ -97,7 +97,7 @@
       
       var wooss_destination_state = $("select#wooss_destination_state").val();
       $("select#wooss_destination_state").change(function(){
-          wooss_destination_state = $(this).val();
+          wooss_destination_state = $(this).val()
       })
       
     
@@ -105,7 +105,7 @@
 
       
       
-      var wooss_order_id = $("textarea#wooss_items_list").data("id");
+      var wooss_order_id = $("textarea#wooss_items_list").data("id"); 
 $.blockUI({message:'Requesting shipment...'});
       var data = {
         wooss_origin_name: wooss_origin_name,
@@ -129,6 +129,7 @@ $.blockUI({message:'Requesting shipment...'});
         
         wooss_order_id: wooss_order_id
       };
+      //console.log(wooss_destination_state);
 
       $.post(
         wooss_ajax_object.wooss_ajax_url,

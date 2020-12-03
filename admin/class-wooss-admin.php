@@ -107,7 +107,8 @@ class Wooss_Admin
 			]
 		);
 
-		wp_enqueue_script('wooss_shipping_method_js_script', plugin_dir_url(__FILE__) . '../includes/assets/js/script.js', array('jquery'), $this->version, false);
+		wp_enqueue_script('wooss_shipping_method_serilizejson_script', plugin_dir_url(__FILE__) . '../includes/assets/js/jqueryserilize.js', array('jquery'), $this->version, false);
+		wp_enqueue_script('wooss_shipping_method_js_script', plugin_dir_url(__FILE__) . '../includes/assets/js/script.js', array('jquery','wooss_shipping_method_serilizejson_script'), $this->version, false);
 		wp_localize_script(
 			'wooss_shipping_method_js_script',
 			'wooss_ajax_object',
@@ -188,6 +189,10 @@ class Wooss_Admin
 					$destination_state = $state_name;
 					break;
 				}
+			} 
+
+			if(empty($destination_state)){
+				$destination_state = "London";
 			}
 
 		$country = $countries_obj->get_countries();
@@ -231,14 +236,15 @@ class Wooss_Admin
 			}
 
 			$api_call                   = new Wooss_Sendbox_Shipping_API();
-			$auth_header                = get_option('wooss_basic_auth');
+			//$auth_header                = get_option('wooss_basic_auth');
+			$auth_header = Wooss_Sendbox_Shipping_API::checkAuth();
 			$args                       = array(
 				'headers' => array(
 					'Content-Type'  => 'application/json',
 					'Authorization' => $auth_header,
 				),
 			);
-			$profile_api_url            = 'https://api.sendbox.ng/v1/merchant/profile';
+			$profile_api_url            = 'https://live.sendbox.co/oauth/profile';
 			$profile_data_response_code = $api_call->get_api_response_code($profile_api_url, $args, 'GET');
 			$profile_data_response_body = $api_call->get_api_response_body($profile_api_url, $args, 'GET');
 			$wooss_origin_name          = '';
@@ -251,15 +257,15 @@ class Wooss_Admin
 			}
 			$wc_city             = get_option('woocommerce_store_city');
 			$wc_store_address    = get_option('woocommerce_store_address');
-			$wooss_origin_city   = get_option('wooss_origin_city');
-			$wooss_origin_street = get_option('wooss_origin_street');
+			$wooss_origin_city   = get_option('sendbox_data')['wooss_city'];
+			$wooss_origin_street = get_option('sendbox_data')['wooss_street'];
 			if (null == $wooss_origin_city) {
 				$wooss_origin_city = $wc_city;
 			}
 			if (null == $wooss_origin_street) {
 				$wooss_origin_street = $wc_store_address;
 			}
-			$wooss_origin_states_selected = get_option('wooss_states_selected');
+			$wooss_origin_states_selected = get_option('sendbox_data')['wooss_state_dropdown'];
 			if (null == $wooss_origin_states_selected) {
 				$wooss_origin_states_selected = '';
 			}
@@ -268,12 +274,12 @@ class Wooss_Admin
 				$wooss_origin_country = 'Nigeria';
 			}
 
-			$wooss_pickup_type = get_option('wooss_pickup_type');
+			$wooss_pickup_type = get_option('sendbox_data')['wooss_pickup_type'];
 			if (null == $wooss_pickup_type) {
 				$wooss_pickup_type = 'pickup';
 			}
 
-			$incoming_option_code = get_option('wooss_pickup_type');
+			$incoming_option_code = get_option('sendbox_data')['wooss_pickup_type'];
 			if (null == $incoming_option_code) {
 				return;
 			}
@@ -294,7 +300,7 @@ class Wooss_Admin
 
 				?>
 
-				<div style="display:none;" id="wooss_shipments_data">
+				<div  id="wooss_shipments_data">
 
 					<span style="display:none;"><strong><?php esc_html_e('Origin Details : ', 'wooss'); ?></strong>
 						<i>This represents your store details</i>
@@ -329,7 +335,7 @@ class Wooss_Admin
 
 					<br />
 					<br />
-					<span><strong><?php esc_html_e('Destination Details : ', 'wooss'); ?></strong>
+					<span  style="display:none;"><strong><?php esc_html_e('Destination Details : ', 'wooss'); ?></strong>
 						<i>This represents your customer details</i>
 						<br />
 						<strong><label for="wooss_destination_name"><?php esc_html_e('Name : ', 'wooss'); ?></label></strong>
@@ -372,9 +378,9 @@ class Wooss_Admin
 
 					$payload_data                         = new stdClass();
 					$payload_data->origin_name      = $wooss_origin_name;
-					$payload_data->destination_country    = $destination_country;
+					//$payload_data->destination_country    = $destination_country;
 					$payload_data->destination_country_code = $destination_country;
-					$payload_data->destination_state_code = ' ';
+					//$payload_data->destination_state_code = ' ';
 					$payload_data->destination_state      = $destination_state;
 					$payload_data->destination_city       = $destination_city;
 					$payload_data->destination_street     = $destination_street;
@@ -389,11 +395,12 @@ class Wooss_Admin
 					$payload_data->origin_phone    = $wooss_origin_phone;
 					$payload_data->origin_street         = $wc_store_address;
 					$payload_data->origin_city     = $wooss_origin_city;
-					$payload_data->deliver_priority_code = 'next_day';
+					//$payload_data->deliver_priority_code = 'next_day';
 					$payload_data->pickup_date           = $pickup_date;
 					$payload_data->incoming_option_code  = $incoming_option_code;
 					$payload_data->payment_option_code   = 'prepaid';
-					$payload_data->deliver_type_code     = 'last_mile';
+					//$payload_data->deliver_type_code     = 'last_mile'; 
+					
 
 					$payload_data_json = wp_json_encode($payload_data);
 					$delivery_args     = array(
@@ -403,7 +410,9 @@ class Wooss_Admin
 						),
 						'body'    => $payload_data_json, 
 					
-					);
+					); 
+					//print_r($payload_data_json);
+					
 						
 					?>
 				</div>
@@ -414,7 +423,7 @@ class Wooss_Admin
 						<?php
 						$quote_api_url =  $api_call->get_sendbox_api_url('delivery_quote');
 						$quote_body    = $api_call->get_api_response_body($quote_api_url, $delivery_args, 'POST');
-
+                       // var_dump($quote_body);
                              
 						$quotes_rates = $quote_body->rates;
 						//print_r($quote_body);
@@ -627,6 +636,8 @@ class Wooss_Admin
 					array_push($items_lists, $items_data);
 				}
 
+				
+
 				$courier_selected = sanitize_text_field($data['wooss_selected_courier']);
 
 				$destination_name    = sanitize_text_field($data['wooss_destination_name']);
@@ -643,7 +654,7 @@ class Wooss_Admin
 				$origin_city    = sanitize_text_field($data['wooss_origin_city']);
 				$origin_state   = sanitize_text_field($data['wooss_origin_state']);
 				$origin_street  = sanitize_text_field($data['wooss_origin_street']);
-				$origin_country = sanitize_text_field($data['wooss_origin_country']); 
+				$origin_country = sanitize_text_field($data['wooss_origin_country']);
 				
 				$destination_post_code = sanitize_text_field($data['wooss_postal_code']);
 
@@ -651,7 +662,7 @@ class Wooss_Admin
 
 				$payload_data = new stdClass();
 
-				$payload_data->selected_courier_id = $courier_selected;
+				//$payload_data->selected_courier_id = $courier_selected;
 
 				$payload_data->destination_name    = $destination_name;
 				$payload_data->destination_phone   = $destination_phone;
@@ -660,7 +671,7 @@ class Wooss_Admin
 				$payload_data->destination_country = $destination_country;
 				$payload_data->destination_state   = $destination_state;
 				$payload_data->destination_street  = $destination_street;
-
+                $payload_data->weight = $product_weight;
 				$payload_data->origin_name       = $origin_name;
 				$payload_data->origin_phone      = $origin_phone;
 				$payload_data->origin_email      = $origin_email;
@@ -679,12 +690,16 @@ class Wooss_Admin
 				$pickup_date = $date->format('c');
 
 				$payload_data->deliver_priority_code = 'next_day';
-				$payload_data->pickup_date           = $pickup_date;
+				$payload_data->pickup_date           = $pickup_date; 
+				$payload_data->channel_code ='api';
+				$payload_data->rate_code ="standard" ;
+				
 
 				$api_call    = new Wooss_Sendbox_Shipping_API();
-				$auth_header = get_option('wooss_basic_auth');
+				//$auth_header = get_option('wooss_basic_auth');
+				$auth_header = Wooss_Sendbox_Shipping_API::checkAuth();;
 
-				$payload_data_json = wp_json_encode($payload_data);
+				$payload_data_json = wp_json_encode($payload_data); 
 
 				$shipments_args = array(
 					'headers' => array(
@@ -693,12 +708,14 @@ class Wooss_Admin
 					),
 					'body'    => $payload_data_json,
 				);
+				//var_dump($shipments_args);
 
 				$shipments_url = $api_call->get_sendbox_api_url('shipments');
 
 
 				$shipments_details = $api_call->get_api_response_body($shipments_url, $shipments_args, 'POST');
-
+				
+				//var_dump($shipments_details);
 				if (isset($shipments_details)) {
 
 					$tracking_code = $shipments_details->code;

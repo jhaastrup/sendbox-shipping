@@ -70,22 +70,83 @@ class Wooss_Sendbox_Shipping_API
 	public function get_sendbox_api_url($url_type)
 	{
 		if ('delivery_quote' == $url_type) {
-			$url = 'https://api.sendbox.ng/v1/merchant/shipments/delivery_quote';
+			$url = 'https://live.sendbox.co/shipping/shipment_delivery_quote';
 		} elseif ('countries' == $url_type) {
 			$url = 'https://api.sendbox.co/auth/countries?page_by={' . '"per_page"' . ':264}';
 		} elseif ('states' == $url_type) {
 			$url = 'https://api.sendbox.co/auth/states';
 		} elseif ('shipments' == $url_type) {
-			$url = 'https://api.sendbox.ng/v1/merchant/shipments';
+			$url = 'https://live.sendbox.co/shipping/shipments';
 		} elseif ('item_type' == $url_type) {
 			$url = 'https://api.sendbox.ng/v1/item_types';
 		} elseif ('profile' == $url_type) {
-			$url = 'https://api.sendbox.ng/v1/merchant/profile';
+			$url = 'https://live.sendbox.co/oauth/profile';
 		} else {
 			$url = '';
 		}
 		return $url;
 	}
+
+
+	/**
+ * 
+ * This function checks sendbox oauth 
+ */
+
+public static function checkAuth(){ 
+
+	$api_key = get_option('sendbox_data')['sendbox_auth_token'];
+	$profile_url = "https://live.sendbox.co/oauth/profile";
+
+	$profile_res = wp_remote_get( $profile_url ,
+	array( 'timeout' => 40,
+   'headers' => array( 'Content-Type' => 'application/json',
+					  'Authorization'=> $api_key ) 
+	));
+	//var_dump($profile_res);
+	$profile_obj = json_decode($profile_res['body']);
+
+   if(isset($profile_obj->title)){
+   
+   //make a new request to oauth 
+   $s_url = 'https://live.sendbox.co/oauth/access/access_token/refresh?';
+   //('sendbox_data')['sendbox_auth_token']
+   $app_id = get_option('sendbox_data')['sendbox_app_id'];
+   $client_secret = get_option('sendbox_data')['sendbox_client_secret'];
+   $url_oauth = $s_url.'app_id='.$app_id.'&client_secret='.$client_secret; 
+   $refresh_token = get_option('sendbox_data')['sendbox_refresh_token'];
+
+   $oauth_res = wp_remote_get( $url_oauth,
+	array( 'timeout' => 10,
+   'headers' => array( 'Content-Type' => 'application/json',
+					  'Refresh-Token'=> $refresh_token ) 
+	));
+	$oauth_obj = json_decode($oauth_res['body']);
+   if(isset($oauth_obj->access_token)){
+	   $new_auth = $oauth_obj->access_token; 
+	   $sendbox_new_auth = get_option('sendbox_data');
+	   $sendbox_new_auth['sendbox_auth_token']= $new_auth;
+	   update_option('sendbox_data',$sendbox_new_auth);
+	   
+   }
+   if(isset($oauth_obj->refresh_token)){
+	   $new_refresh = $oauth_obj->refresh_token;
+	   $sendbox_new_refresh = get_option('sendbox_data');
+	   $sendbox_new_refresh['sendbox_refresh_token'] = $new_refresh;
+	   update_option('sendbox_data',  $sendbox_new_refresh);
+   }
+   
+}
+
+else{
+   $api_key = get_option('sendbox_data')['sendbox_auth_token'];
+}
+
+return $api_key;
+
+	 
+}
+
 
 
 	/**
@@ -97,5 +158,9 @@ class Wooss_Sendbox_Shipping_API
 	{
 		$state = array('Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Benue', 'Borno', 'Bayelsa', 'Cross River', 'Delta', 'Ebonyi ', 'Edo', 'Ekiti', 'Enugu ', 'Federal Capital Territory', 'Gombe ', 'Jigawa ', ' Imo ', ' Kaduna', 'Kebbi ', 'Kano', ' Kogi', ' Lagos', 'Katsina', 'Kwara', 'Nasarawa', 'Niger ', 'Ogun', 'Ondo ', 'Rivers', 'Oyo', 'Osun', 'Sokoto', 'Plateau', 'Taraba', 'Yobe', 'Zamfara');
 		return $state;
-	}
-}
+	}  
+
+
+} 
+
+
