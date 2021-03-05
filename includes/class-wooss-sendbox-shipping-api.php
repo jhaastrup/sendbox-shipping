@@ -93,9 +93,10 @@ class Wooss_Sendbox_Shipping_API {
 
 	public static function checkAuth() {
 
-		$api_key         = get_option( 'sendbox_data' )['sendbox_auth_token'];
-		$profile_url     = 'https://live.sendbox.co/oauth/profile';
 		$sendbox_data_db = get_option( 'sendbox_data' );
+		$api_key         = $sendbox_data_db['sendbox_auth_token'];
+		$profile_url     = 'https://live.sendbox.co/oauth/profile';
+
 
 		$profile_res = wp_remote_get(
 			$profile_url,
@@ -115,7 +116,6 @@ class Wooss_Sendbox_Shipping_API {
 
 		if ( isset( $profile_obj->title ) ) {
 
-			// make a new request to oauth
 			$s_url         = 'https://live.sendbox.co/oauth/access/access_token/refresh?';
 			$app_id        = $sendbox_data_db['sendbox_app_id'];
 			$client_secret = $sendbox_data_db['sendbox_client_secret'];
@@ -133,6 +133,10 @@ class Wooss_Sendbox_Shipping_API {
 				)
 			);
 			$oauth_obj = json_decode( $oauth_res['body'] );
+			if ( ! isset( $oauth_res['body'] ) ) {
+				return $api_key;
+			}
+
 			if ( isset( $oauth_obj->access_token ) ) {
 				$new_auth                              = $oauth_obj->access_token;
 				$sendbox_data_db['sendbox_auth_token'] = $new_auth;
