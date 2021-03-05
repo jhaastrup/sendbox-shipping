@@ -265,7 +265,7 @@ class Wooss_Admin
 			if (null == $wooss_origin_street) {
 				$wooss_origin_street = $wc_store_address;
 			}
-			$wooss_origin_states_selected = get_option('sendbox_data')['wooss_state_dropdown'];
+			$wooss_origin_states_selected = get_option('sendbox_data')['wooss_state_name'];
 			if (null == $wooss_origin_states_selected) {
 				$wooss_origin_states_selected = '';
 			}

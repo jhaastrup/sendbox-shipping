@@ -123,7 +123,7 @@ function wooss_shipping_method()
 
 					$origin_country = "Nigeria";//get_option('wooss_country');
 
-					$origin_state = get_option('sendbox_data')['wooss_state_dropdown'];
+					$origin_state = get_option('sendbox_data')['wooss_state_name'];
 
 					$origin_street = get_option('sendbox_data')['wooss_street'];
 
@@ -322,9 +322,9 @@ function wooss_form_fields()
 		if (null == $wooss_store_address) {
 			$wooss_store_address = $wc_store_address;
 		}
-		$wooss_states_selected = get_option('wooss_states_selected');
+		$wooss_states_selected = get_option('wooss_state_name');
 		if (null == $wooss_states_selected) {
-			$wooss_states_selected = '';
+			$wooss_states_selected = 'no_state';
 		}
 		$wooss_country = get_option('wooss_country');
 		if (null == $wooss_country) {
@@ -436,14 +436,23 @@ function wooss_form_fields()
 							<strong><label for="wooss_state"><?php esc_attr_e('State : ', 'wooss'); ?></label></strong>
 						</td>
 						<td>
+					
 							<?php
-							echo "<select class='wooss_state_dropdown wooss_fields wooss_selected' name='wooss[wooss_state_dropdown]'>";
+							$p_holder ="--Select State--";
+							echo "<select class='wooss_state_name wooss_fields wooss_selected' name='wooss[wooss_state_name]'>";
+							echo '<option value="no_state">'.$p_holder.'</option>';
 							foreach ($nigeria_states as $state) {
-								$states_selected = (preg_match("/$wooss_states_selected/", $state) == true) ? 'selected="selected"' : '';
-								echo "<option value='$state' $states_selected>$state</option>";
+								
+								echo "<option value='$state'>$state</option>"; 
+
 							}
 							echo '</select>';
-							?>
+							?> 
+							<script>
+							jQuery(document).ready(function (){
+								jQuery("select[name = 'wooss[wooss_state_name]']").val("<?php echo $wooss_states_selected; ?>");
+							})
+							</script>
 						</td>
 					</tr>
 
@@ -538,7 +547,7 @@ function connect_to_sendbox()
 		);
 		$response_code_from_api = $api_call->get_api_response_code($api_url, $args, 'GET'); 
 		//$response_body_from_profile_api = $api_call->get_api_response_body($api_url, $args, 'GET');
-		//var_dump($response_body_from_profile_api);
+		//var_dump($response_code_from_api);
 		if (200 === $response_code_from_api) {
 			$response_code = 1;
 			//update_option('wooss_connexion_status', $response_code);
@@ -568,9 +577,11 @@ function save_fields_by_ajax()
 	if (isset($_POST['data']) &&  wp_verify_nonce($_POST['security'], 'wooss-ajax-security-nonce')) {
 		$data              =  wp_unslash($_POST['data']);
 		$sendbox_data      =  get_option("sendbox_data");
-		$new_sendbox_data =    array_merge($sendbox_data, $data);
+		$new_sendbox_data =    array_merge($sendbox_data, $data); 
+		//var_dump($new_sendbox_data);
 		update_option('sendbox_data', $new_sendbox_data); 
 		
+		$operation_success = 1;
 	
 	 }
 

@@ -15,7 +15,7 @@
  * Plugin Name:       Sendbox Shipping
  * Plugin URI:        #
  * Description:       This is a woocommerce plugin that enables you ship from your store in Nigeria to anywhere in the world.
- * Version:           3.2.1
+ * Version:           3.2.2
  * Author:            sendbox
  * Author URI:        https://sendbox.ng/ 
  * License:           GPL-2.0+

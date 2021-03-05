@@ -65,14 +65,6 @@
         e.preventDefault(); 
         var formDetails = $('form').serializeJSON();
       console.log(formDetails.wooss);
-        //wooss_basic_auth = $("input[name='wooss_basic_auth'").val();
-        //sendbox_auth_token = formDetails.sendbox_auth_token
-        //console.log($('form').serializeJSON());
-       /*  sendbox_refresh_token = $("input[name='sendbox_refresh_token']").val(); 
-         console.log(sendbox_auth_token, sendbox_refresh_token)
-        sendbox_app_id = $("input[name='sendbox_app_id']").val();
-        sendbox_client_secret = $("input[name='sendbox_client_secret']").val();
- */
         function reloadPage() {
           window.location.reload();
         }
@@ -112,7 +104,7 @@
       var wooss_button_save = $("button.button-primary.wooss_save_button");
       wooss_button_save.on("submit click", function (e) {
         e.preventDefault();
-        var wooss_state_name = $("select.wooss_state_dropdown").val();
+        var wooss_state_name = $("select.wooss_state_name").val();
         var wooss_country = $("select.wooss_country_select").val();
         var wooss_city = $("input[name='wooss_city']").val();
         var wooss_street = $("input[name='wooss_street']").val();
