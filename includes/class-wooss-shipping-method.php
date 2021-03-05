@@ -285,10 +285,11 @@ add_action('woocommerce_settings_tabs_shipping', 'wooss_form_fields', 100);
  */
 function wooss_form_fields()
 {
-	$sendbox_auth_header = Wooss_Sendbox_Shipping_API::checkAuth();
+
 	$shipping_methods_enabled = get_option('wooss_option_enable');
-	if (isset($_GET['tab']) && $_GET['tab'] == 'shipping' &&  isset($_GET['section']) && $_GET['section'] == 'wooss' && $shipping_methods_enabled == 'yes') {
-		$api_call                   = new Wooss_Sendbox_Shipping_API();
+	if (isset($_GET['tab']) && ($_GET['tab'] == 'shipping' &&  isset($_GET['section']) && $_GET['section'] == 'wooss' && $shipping_methods_enabled == 'yes')) {
+		$sendbox_auth_header = Wooss_Sendbox_Shipping_API::checkAuth();
+	    $api_call                   = new Wooss_Sendbox_Shipping_API();
 		//$auth_header                = esc_attr(get_option('wooss_basic_auth'));
 		//$auth_header                = esc_attr(get_option('sendbox_data')['sendbox_auth_token']);
 		$auth_header                = $sendbox_auth_header;
