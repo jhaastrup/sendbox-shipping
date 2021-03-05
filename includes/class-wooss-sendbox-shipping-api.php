@@ -92,62 +92,58 @@ class Wooss_Sendbox_Shipping_API {
 	 */
 
 	public static function checkAuth() {
-		try {
 
-			$api_key     = get_option ( 'sendbox_data' )['sendbox_auth_token'];
-			$profile_url = 'https://live.sendbox.co/oauth/profile';
+		$api_key         = get_option( 'sendbox_data' )['sendbox_auth_token'];
+		$profile_url     = 'https://live.sendbox.co/oauth/profile';
+		$sendbox_data_db = get_option( 'sendbox_data' );
 
-			$profile_res = wp_remote_get (
-				$profile_url,
+		$profile_res = wp_remote_get(
+			$profile_url,
+			array(
+				'timeout' => 40,
+				'headers' => array(
+					'Content-Type'  => 'application/json',
+					'Authorization' => $api_key,
+				),
+			)
+		);
+		if ( isset( $profile_res['body'] ) ) {
+			$profile_obj = json_decode( $profile_res['body'] );
+		} else {
+			$profile_obj = null;
+		}
+
+		if ( isset( $profile_obj->title ) ) {
+
+			// make a new request to oauth
+			$s_url         = 'https://live.sendbox.co/oauth/access/access_token/refresh?';
+			$app_id        = $sendbox_data_db['sendbox_app_id'];
+			$client_secret = $sendbox_data_db['sendbox_client_secret'];
+			$url_oauth     = $s_url . 'app_id=' . $app_id . '&client_secret=' . $client_secret;
+			$refresh_token = $sendbox_data_db['sendbox_refresh_token'];
+
+			$oauth_res = wp_remote_get(
+				$url_oauth,
 				array(
-					'timeout' => 40,
+					'timeout' => 10,
 					'headers' => array(
 						'Content-Type'  => 'application/json',
-						'Authorization' => $api_key,
+						'Refresh-Token' => $refresh_token,
 					),
 				)
 			);
-			$profile_obj = json_decode ( $profile_res['body'] );
+			$oauth_obj = json_decode( $oauth_res['body'] );
+			if ( isset( $oauth_obj->access_token ) ) {
+				$new_auth                              = $oauth_obj->access_token;
+				$sendbox_data_db['sendbox_auth_token'] = $new_auth;
+				update_option( 'sendbox_data', $sendbox_data_db );
 
-			if ( isset( $profile_obj->title ) ) {
-
-				// make a new request to oauth
-				$s_url         = 'https://live.sendbox.co/oauth/access/access_token/refresh?';
-				$app_id        = get_option ( 'sendbox_data' )['sendbox_app_id'];
-				$client_secret = get_option ( 'sendbox_data' )['sendbox_client_secret'];
-				$url_oauth     = $s_url . 'app_id=' . $app_id . '&client_secret=' . $client_secret;
-				$refresh_token = get_option ( 'sendbox_data' )['sendbox_refresh_token'];
-
-				$oauth_res = wp_remote_get (
-					$url_oauth,
-					array(
-						'timeout' => 10,
-						'headers' => array(
-							'Content-Type'  => 'application/json',
-							'Refresh-Token' => $refresh_token,
-						),
-					)
-				);
-				$oauth_obj = json_decode ( $oauth_res['body'] );
-				if ( isset( $oauth_obj->access_token ) ) {
-					$new_auth                               = $oauth_obj->access_token;
-					$sendbox_new_auth                       = get_option ( 'sendbox_data' );
-					$sendbox_new_auth['sendbox_auth_token'] = $new_auth;
-					update_option ( 'sendbox_data', $sendbox_new_auth );
-
-				}
-				if ( isset( $oauth_obj->refresh_token ) ) {
-					$new_refresh                                  = $oauth_obj->refresh_token;
-					$sendbox_new_refresh                          = get_option ( 'sendbox_data' );
-					$sendbox_new_refresh['sendbox_refresh_token'] = $new_refresh;
-					update_option ( 'sendbox_data', $sendbox_new_refresh );
-				}
-			} else {
-				$api_key = get_option ( 'sendbox_data' )['sendbox_auth_token'];
 			}
-		}catch ( Exception $errors ){
-			var_dump ($errors);
-			$api_key = null;
+			if ( isset( $oauth_obj->refresh_token ) ) {
+				$new_refresh                              = $oauth_obj->refresh_token;
+				$sendbox_data_db['sendbox_refresh_token'] = $new_refresh;
+				update_option( 'sendbox_data', $sendbox_data_db );
+			}
 		}
 
 		return $api_key;
