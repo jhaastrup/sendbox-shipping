@@ -220,6 +220,7 @@ function wooss_shipping_method() {
 					$payload_array_data['destination_city']    = $destination_city;
 
 					if ( floatval( $quoted_fee ) == 0 ) {
+					if ( (int)$quoted_fee == 0 ) {
 						$delivery_quotes_details = wooss_calculate_shipping( $api_call, $payload_array_data, $auth_header );
 						if ( 'maximum' == $wooss_rates_type && isset( $delivery_quotes_details->max_quoted_fee ) ) {
 							$quotes_fee = $delivery_quotes_details->max_quoted_fee;
