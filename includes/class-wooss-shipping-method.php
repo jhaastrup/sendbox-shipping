@@ -71,7 +71,7 @@ function wooss_shipping_method() {
 				add_action( 'woocommerce_update_options_shipping_' . $this->id, array( $this, 'process_admin_options' ) );
 			}
 
-			/**
+			/*
 			 * Calculate  fees for the shipping method on the frontend.
 			 *
 			 * @param  mixed $package : Current order data.
@@ -275,8 +275,18 @@ add_action( 'woocommerce_settings_tabs_shipping', 'wooss_form_fields', 100 );
 function wooss_form_fields() {
 	$shipping_methods_enabled = get_option( 'wooss_option_enable' );
 	if ( isset( $_GET['tab'] ) && ( $_GET['tab'] == 'shipping' && isset( $_GET['section'] ) && $_GET['section'] == 'wooss' && $shipping_methods_enabled == 'yes' ) ) {
-		$sendbox_auth_header        = Wooss_Sendbox_Shipping_API::checkAuth();
-		$api_call                   = new Wooss_Sendbox_Shipping_API();
+		?>
+		<style>
+			p.submit{
+				display:none;
+			}
+		</style>
+		<?php
+
+		$sendbox_auth_header = Wooss_Sendbox_Shipping_API::checkAuth();
+		$api_call            = new Wooss_Sendbox_Shipping_API();
+		$sendbox_data        = get_option( 'sendbox_data' );
+
 		$auth_header                = $sendbox_auth_header;
 		$args                       = array(
 			'headers' => array(
@@ -297,51 +307,46 @@ function wooss_form_fields() {
 		}
 		$wc_city             = get_option( 'woocommerce_store_city' );
 		$wc_store_address    = get_option( 'woocommerce_store_address' );
-		$wooss_city          = get_option( 'sendbox_data' )['wooss_city'];
-		$wooss_store_address = get_option( 'wooss_store_address' );
-		// $wooss_basic_auth    = get_option('wooss_basic_auth');
-		$wc_extra_fees = (int) get_option( 'sendbox_data' )['wooss_extra_fees'];
+		$wooss_city          = $sendbox_data['wooss_city'];
+		$wooss_store_address = $sendbox_data['wooss_store_address'];
+		$wc_extra_fees       = (int) $sendbox_data['wooss_extra_fees'];
 
-		if ( null == $wooss_city ) {
+		if ( ! $wooss_city ) {
 			$wooss_city = $wc_city;
 		}
-		if ( null == $wooss_store_address ) {
+		if ( ! $wooss_store_address ) {
 			$wooss_store_address = $wc_store_address;
 		}
-		$wooss_states_selected = get_option( 'wooss_state_name' );
-		if ( null == $wooss_states_selected ) {
+		$wooss_states_selected = $sendbox_data['wooss_state_name'];
+		if ( is_null( $wooss_states_selected ) || ! $wooss_states_selected ) {
 			$wooss_states_selected = 'no_state';
 		}
-		$wooss_country = get_option( 'wooss_country' );
-		if ( null == $wooss_country ) {
+		$wooss_country = $sendbox_data['wooss_country'];
+		if ( ! $wooss_country ) {
 			$wooss_country = 'Nigeria';
 		}
-		// $wooss_connection_status = get_option('wooss_basic_auth');
-		$wooss_connection_status = get_option( 'sendbox_data' )['sendbox_auth_token'];
-		// var_dump();
+
+		$wooss_connection_status = $sendbox_data['sendbox_auth_token'];
+
 		$custom_styles = '';
 
-		if ( null != $wooss_connection_status ) {
+		if ( $wooss_connection_status ) {
 			$custom_styles = 'display:none';
 		}
-		// var_dump($custom_styles);
+
 		$wooss_display_fields = get_option( 'wooss_connection_status' );
-		// var_dump($wooss_display_fields);
-		if ( $wooss_display_fields ) {
-			$display_fields = 'display : inline';
-			$hide_button    = 'display : none';
-		}
-		$wooss_pickup_type = get_option( 'sendbox_data' )['wooss_pickup_type'];
-		if ( null == $wooss_pickup_type ) {
+
+		$wooss_pickup_type = $sendbox_data['wooss_pickup_type'];
+		if ( ! $wooss_pickup_type ) {
 			$wooss_pickup_type = 'pickup';
 		}
 
-		if ( null == $wc_extra_fees ) {
+		if ( ! $wc_extra_fees ) {
 			$wc_extra_fees = 0;
 		}
 
-		$wooss_rates_type = get_option( 'sendbox_data' )['wooss_rates_type'];
-		if ( null == $wooss_rates_type ) {
+		$wooss_rates_type = $sendbox_data['wooss_rates_type'];
+		if ( ! $wooss_rates_type ) {
 			$wooss_rates_type = 'maximum';
 		}
 		$wooss_rate_type = array( 'maximum', 'minimum' );
@@ -349,30 +354,26 @@ function wooss_form_fields() {
 		$wooss_pickup_types = array( 'pickup', 'drop-off' );
 		$nigeria_states     = $api_call->get_nigeria_states();
 
-		// var_dump($wooss_display_fields);
 		?>
 
 		<div class="wooss-shipping-settings" >
 		<!--Make changes and start using the new oauth--->
 
-			<!-- <strong><label for="wooss_basic_auth"><?php // esc_attr_e('API KEY :', 'wooss'); ?> </label><input type="text" class="wooss-text" placeholder="Basic X0000X0000000000AH" name="wooss_basic_auth" value="<?php // esc_attr_e($wooss_basic_auth, 'wooss'); ?>"></strong> <br /> -->
 			<div style="<?php esc_attr_e( $custom_styles ); ?>">
-			<strong><label for="sendbox_auth_token"><?php esc_attr_e( 'Access Token :', 'wooss' ); ?> </label><input type="text" class="wooss-text" placeholder="Enter Your Access Token" name="wooss[sendbox_auth_token]" value="<?php esc_attr_e( $sendbox_auth_token, 'wooss' ); ?>"></strong> <br />
-			<strong><label for="sendbox_refresh_token"><?php esc_attr_e( 'Refresh Token :', 'wooss' ); ?> </label><input type="text" class="wooss-text" placeholder="Enter Your Refresh Token" name="wooss[sendbox_refresh_token]" value="<?php esc_attr_e( $sendbox_refresh_token, 'wooss' ); ?>"></strong> <br />
-			<strong><label for="sendbox_app_id"><?php esc_attr_e( 'App ID :', 'wooss' ); ?> </label><input type="text" class="wooss-text" placeholder="Enter Your App ID" name="wooss[sendbox_app_id]" value="<?php esc_attr_e( $sendbox_app_id, 'wooss' ); ?>"></strong> <br />
-			<strong><label for="sendbox_client_secret"><?php esc_attr_e( 'Client Secret :', 'wooss' ); ?> </label><input type="text" class="wooss-text" placeholder="Enter Your Client Secret" name="wooss[sendbox_client_secret]" value="<?php esc_attr_e( $sendbox_client_secret, 'wooss' ); ?>"></strong> <br />
-			<button type="submit" class="button-primary wooss-connect-sendbox wooss_fields"><?php esc_attr_e( 'Connect to Sendbox', 'wooss' ); ?></button><br />
-		   
+				<strong><label for="sendbox_auth_token"><?php esc_attr_e( 'Access Token :', 'wooss' ); ?> </label><input type="text" class="wooss-text" placeholder="Enter Your Access Token" name="wooss[sendbox_auth_token]" value="<?php esc_attr_e( $sendbox_auth_token, 'wooss' ); ?>"></strong> <br />
+				<strong><label for="sendbox_refresh_token"><?php esc_attr_e( 'Refresh Token :', 'wooss' ); ?> </label><input type="text" class="wooss-text" placeholder="Enter Your Refresh Token" name="wooss[sendbox_refresh_token]" value="<?php esc_attr_e( $sendbox_refresh_token, 'wooss' ); ?>"></strong> <br />
+				<strong><label for="sendbox_app_id"><?php esc_attr_e( 'App ID :', 'wooss' ); ?> </label><input type="text" class="wooss-text" placeholder="Enter Your App ID" name="wooss[sendbox_app_id]" value="<?php esc_attr_e( $sendbox_app_id, 'wooss' ); ?>"></strong> <br />
+				<strong><label for="sendbox_client_secret"><?php esc_attr_e( 'Client Secret :', 'wooss' ); ?> </label><input type="text" class="wooss-text" placeholder="Enter Your Client Secret" name="wooss[sendbox_client_secret]" value="<?php esc_attr_e( $sendbox_client_secret, 'wooss' ); ?>"></strong> <br />
+				<button type="submit" class="button-primary wooss-connect-sendbox wooss_fields"><?php esc_attr_e( 'Connect to Sendbox', 'wooss' ); ?></button><br />
 		   </div>
 	   <div class="wooss_necessary_fields" style="
-		<?php
-		$display_fields = 'display : none';
-		if ( $wooss_display_fields ) {
-			$display_fields = 'display : inline';
-			echo $display_fields;
-		} else {
-			echo $display_fields; }
-		?>
+			<?php
+				$display_fields = 'display : none';
+			if ( $wooss_display_fields && $sendbox_data ) {
+				$display_fields = 'display : inline';
+			}
+				echo $display_fields;
+			?>
 		">
 				<table style="width:100%">
 
@@ -420,7 +421,7 @@ function wooss_form_fields() {
 							<strong><label for="wooss_city"><?php esc_attr_e( 'City : ', 'wooss' ); ?></label></strong>
 						</td>
 						<td>
-							<input type="text" class="wooss-text" name="wooss[wooss_city]" value="<?php echo esc_attr_e( $wc_city ); ?>">
+							<input type="text" class="wooss-text" name="wooss[wooss_city]" value="<?php echo esc_attr_e( $wooss_city ); ?>">
 						</td>
 					</tr>
 
@@ -430,7 +431,7 @@ function wooss_form_fields() {
 							<strong><label for="wooss_state"><?php esc_attr_e( 'State : ', 'wooss' ); ?></label></strong>
 						</td>
 						<td>
-					
+
 							<?php
 							$p_holder = '--Select State--';
 							echo "<select class='wooss_state_name wooss_fields wooss_selected' name='wooss[wooss_state_name]'>";
@@ -442,7 +443,7 @@ function wooss_form_fields() {
 							}
 							echo '</select>';
 							?>
-							 
+
 							<script>
 							jQuery(document).ready(function (){
 								jQuery("select[name = 'wooss[wooss_state_name]']").val("<?php echo $wooss_states_selected; ?>");
@@ -489,7 +490,7 @@ function wooss_form_fields() {
 							<strong><label for="wooss_street"><?php esc_attr_e( 'Street : ', 'wooss' ); ?></label></strong>
 						</td>
 						<td>
-							<input type="text" size="100" class="wooss-text" name="wooss[wooss_street]" value="<?php esc_attr_e( $wc_store_address ); ?>">
+							<input type="text" size="100" class="wooss-text" name="wooss[wooss_street]" value="<?php esc_attr_e( $wooss_store_address ); ?>">
 						</td>
 					</tr>
 
@@ -502,7 +503,7 @@ function wooss_form_fields() {
 						</td>
 					</tr>
 				</table>
-				<button type="submit" class="button-primary wooss_save_button"><?php esc_attr_e( 'Sync changes', 'wooss' ); ?></button>
+				<button type="submit" class="button-primary wooss_save_button wooss_sync_changes_btn"><?php esc_attr_e( 'Sync changes', 'wooss' ); ?></button>
 
 			</div>
 			
@@ -530,9 +531,9 @@ function connect_to_sendbox() {
 		// $sendbox_client_secret = $data['sendbox_client_secret'];
 		// $sendbox_app_id = $data['sendbox_app_id'];
 
-		$api_call = new Wooss_Sendbox_Shipping_API();
-		$api_url  = $api_call->get_sendbox_api_url( 'profile' );
-		$args     = array(
+		$api_call               = new Wooss_Sendbox_Shipping_API();
+		$api_url                = $api_call->get_sendbox_api_url( 'profile' );
+		$args                   = array(
 			'headers' => array(
 				'Content-Type'  => 'application/json',
 				'Authorization' => $sendbox_auth_token,
