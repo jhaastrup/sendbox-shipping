@@ -285,6 +285,7 @@ function wooss_form_fields() {
 		$auth_header                = $sendbox_auth_header;
 		$args                       = array(
 			'headers' => array(
+                'timeout'       => 30,
 				'Content-Type'  => 'application/json',
 				'Authorization' => $auth_header,
 			),
@@ -526,6 +527,7 @@ function connect_to_sendbox() {
 		$api_url                = $api_call->get_sendbox_api_url( 'profile' );
 		$args                   = array(
 			'headers' => array(
+				'timeout'       => 30,
 				'Content-Type'  => 'application/json',
 				'Authorization' => $sendbox_auth_token,
 			),
@@ -635,7 +637,7 @@ function wooss_calculate_shipping( $api_obj, $payload_array_data, $authorization
 	$payload_data_json = json_encode( $payload_data );
 
 	$delivery_args = array(
-        'timeout' => 10,
+        'timeout' => 30,
 		'headers' => array(
 			'Content-Type'  => 'application/json',
 			'Authorization' => $authorization_key,
