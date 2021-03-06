@@ -107,7 +107,7 @@ function wooss_shipping_method() {
 						array_push( $items_lists, $outputs );
 					}
 
-					// $auth_header = get_option('wooss_basic_auth');
+
 					$auth_header = Wooss_Sendbox_Shipping_API::checkAuth();
 
 					if ( ! $auth_header ) {
@@ -174,10 +174,6 @@ function wooss_shipping_method() {
 						$destination_city = $package['destination']['city'];
 					}
 
-					// if (empty($destination_state)) {
-					// $destination_state = $destination_state;
-					// }
-
 					$weight             = $quantity * $weight;
 					$payload_array_data = array(
 						'destination_name'      => $destination_name,
@@ -202,11 +198,8 @@ function wooss_shipping_method() {
 						'pickup_date'           => $pickup_date,
 					);
 
-						// var_dump($payload_array_data);
 					$delivery_quotes_details = wooss_calculate_shipping( $api_call, $payload_array_data, $auth_header );
 
-					// var_dump($delivery_quotes_details);
-					// die();
 					$wooss_rates_type = get_option( 'sendbox_data' )['wooss_rates_type'];
 					if ( 'maximum' == $wooss_rates_type && isset( $delivery_quotes_details->max_quoted_fee ) ) {
 						$quotes_fee = $delivery_quotes_details->max_quoted_fee;
@@ -274,7 +267,7 @@ add_action( 'woocommerce_settings_tabs_shipping', 'wooss_form_fields', 100 );
  */
 function wooss_form_fields() {
 	$shipping_methods_enabled = get_option( 'wooss_option_enable' );
-	if ( isset( $_GET['tab'] ) && ( $_GET['tab'] == 'shipping' && isset( $_GET['section'] ) && $_GET['section'] == 'wooss' && $shipping_methods_enabled == 'yes' ) ) {
+	if ( isset( $_GET['tab'] ) && ( $_GET['tab'] == 'shipping' && isset( $_GET['section'] ) && $_GET['section'] == 'wooss' && $shipping_methods_enabled == 'yes' )  ) {
 		?>
 		<style>
 			p.submit{
@@ -521,15 +514,11 @@ add_action( 'wp_ajax_connect_to_sendbox', 'connect_to_sendbox' );
  * @return void
  */
 function connect_to_sendbox() {
-	 // var_dump($_POST);
 	$response_code = 0;
+	//phpcs:disable
 	if ( isset( $_POST['data'] ) ) {
 		$data = wp_unslash( $_POST['data'] );
-		// $wooss_basic_auth = $data['wooss_basic_auth'];
 		$sendbox_auth_token = $data['sendbox_auth_token'];
-		// $sendbox_refresh_token = $data['sendbox_refresh_token'];
-		// $sendbox_client_secret = $data['sendbox_client_secret'];
-		// $sendbox_app_id = $data['sendbox_app_id'];
 
 		$api_call               = new Wooss_Sendbox_Shipping_API();
 		$api_url                = $api_call->get_sendbox_api_url( 'profile' );
@@ -544,7 +533,6 @@ function connect_to_sendbox() {
 			$response_code = 1;
 			update_option( 'wooss_connection_status', $response_code );
 			update_option( 'sendbox_data', $data );
-
 		}
 	}
 	esc_attr_e( $response_code );
@@ -572,16 +560,6 @@ function save_fields_by_ajax() {
 	esc_attr_e( $operation_success );
 	wp_die();
 }
-
-function action_wooss_checkout_update_order_review( $array, $int ) {
-
-	 // DO SOMETHING HERE???
-
-	 WC()->cart->calculate_shipping();
-
-	return;
-}
-// add_action('woocommerce_checkout_update_order_review','action_wooss_checkout_update_order_review', 10, 2);
 
 
 
@@ -618,18 +596,10 @@ function wooss_calculate_shipping( $api_obj, $payload_array_data, $authorization
 				$payload_data->destination_phone = $value;
 				break;
 
-			/*
-			case 'items_list':
-				$payload_data->items     = $value;
-			break; */
 
 			case 'weight':
 				$payload_data->weight = $value;
 				break;
-			/*
-			case 'amount_to_receive':
-				$payload_data->amount_to_receive     = $value;
-			break; */
 
 			case 'origin_country':
 				$payload_data->origin_country = $value;
@@ -655,28 +625,6 @@ function wooss_calculate_shipping( $api_obj, $payload_array_data, $authorization
 				$payload_data->origin_city = $value;
 				break;
 
-			/*
-			case 'deliver_priority_code':
-				$payload_data->deliver_priority_code     = $value;
-			break;
-
-
-			case 'pickup_date':
-				$payload_data->pickup_date     = $value;
-			break;
-
-			case 'incoming_option_code':
-				$payload_data->incoming_option_code     = $value;
-			break;
-
-			case 'payment_option_code':
-				$payload_data->payment_option_code     = $value;
-			break;
-
-			case 'deliver_type_code':
-				$payload_data->deliver_type_code     = $value;
-			break; */
-
 			default:
 				break;
 		}
@@ -691,12 +639,10 @@ function wooss_calculate_shipping( $api_obj, $payload_array_data, $authorization
 		),
 		'body'    => $payload_data_json,
 	);
-	// var_dump($delivery_args);
 
 	$delivery_quotes_url     = $api_obj->get_sendbox_api_url( 'delivery_quote' );
 	$delivery_quotes_details = $api_obj->get_api_response_body( $delivery_quotes_url, $delivery_args, 'POST' );
 
-	// var_dump($delivery_quotes_details);
 	return $delivery_quotes_details;
 }
 
