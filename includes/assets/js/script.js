@@ -53,7 +53,7 @@
       var sendbox_auth_token;
       var sendbox_refresh_token;
       var sendbox_app_id;
-      var sendbox_client_secret; 
+      var sendbox_client_secret;
       var wooss_connect_btn = $("button.wooss-connect-sendbox");
       var wooss_errors_message_span = $("span.wooss_errors_pages");
       var wooss_loader = $("img#wooss-loader");
@@ -62,10 +62,11 @@
        */
 
       wooss_connect_btn.on("click", function (e) {
-        e.preventDefault(); 
+        e.preventDefault();
         var formDetails = $('form').serializeJSON();
       console.log(formDetails.wooss);
         function reloadPage() {
+          $('p.submit').show();
           window.location.reload();
         }
         wooss_loader.show();
@@ -86,10 +87,11 @@
                 '<div id="message" class="updated inline"><p><strong>Your access token is valid, this page will be refreshed in 10s.</strong></p></div>'
               ).insertAfter("br.clear");
               setTimeout(reloadPage, 10000);
+
             } else if (0 == response) {
               wooss_errors_message_span
                 .append(
-                  "Invalid access and refresh token login to sendbox and get the correct tokens"
+                  "Invalid access and refresh token login to sendbox, please can you provide the right ones in order to get the right credentials."
                 )
                 .show();
             }
@@ -146,8 +148,11 @@
               $(
                 '<div id="message" class="updated inline"><p><strong>Your settings have been synced.</strong></p></div>'
               ).insertAfter("br.clear");
+              alert('Your settings have been synced with success.');
+              $('button.wooss_sync_changes_btn').hide();
+              $('p.submit').show();
             } else {
-              alert("Sendbox Error !!!");
+              alert("Sendbox: An error has occured, please reach our support on WordPress.org :) thank you for using our plugin.");
             }
           }
         );
