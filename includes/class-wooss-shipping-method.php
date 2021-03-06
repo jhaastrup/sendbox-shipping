@@ -85,7 +85,8 @@ function wooss_shipping_method() {
 					$fee              = 0;
 					$quantity         = 0;
 					$items_lists      = array();
-					$wooss_extra_fees = esc_attr( get_option( 'wooss_extra_fees' ) );
+					$sendbox_data     = get_option( 'sendbox_data' );
+					$wooss_extra_fees = esc_attr( $sendbox_data[ 'wooss_extra_fees' ] );
 					foreach ( $package['contents'] as $item_id => $values ) {
 						if ( ! empty( $values['data']->get_weight() ) ) {
 							$weight = $values['data']->get_weight();
@@ -116,17 +117,17 @@ function wooss_shipping_method() {
 
 					$origin_country = 'Nigeria';// get_option('wooss_country');
 
-					$origin_state = get_option( 'sendbox_data' )['wooss_state_name'];
+					$origin_state = $sendbox_data['wooss_state_name'];
 
-					$origin_street = get_option( 'sendbox_data' )['wooss_street'];
+					$origin_street = $sendbox_data['wooss_street'];
 
-					$origin_city = get_option( 'sendbox_data' )['wooss_city'];
+					$origin_city = $sendbox_data['wooss_city'];
 
-					$incoming_option_code = get_option( 'sendbox_data' )['wooss_pickup_type'];
+					$incoming_option_code = $sendbox_data['wooss_pickup_type'];
 
 					$profile_url                    = $api_call->get_sendbox_api_url( 'profile' );
 					$profile_args                   = array(
-						'timeout' => 10,
+						'timeout' => 30,
 						'headers' => array(
 							'Content-Type'  => 'application/json',
 							'Authorization' => $auth_header,
@@ -201,7 +202,7 @@ function wooss_shipping_method() {
 
 					$delivery_quotes_details = wooss_calculate_shipping( $api_call, $payload_array_data, $auth_header );
 
-					$wooss_rates_type = get_option( 'sendbox_data' )['wooss_rates_type'];
+					$wooss_rates_type = $sendbox_data['wooss_rates_type'];
 					if ( 'maximum' == $wooss_rates_type && isset( $delivery_quotes_details->max_quoted_fee ) ) {
 						$quotes_fee = $delivery_quotes_details->max_quoted_fee;
 					} elseif ( 'minimum' == $wooss_rates_type && isset( $delivery_quotes_details->min_quoted_fee ) ) {
