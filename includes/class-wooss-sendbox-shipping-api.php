@@ -108,7 +108,7 @@ class Wooss_Sendbox_Shipping_API {
 			)
 		);
 		$class_name  = 'WP_Error';
-		if ( isset( $profile_res['body'] ) && ! ( $profile_res instanceof $class_name ) ) {
+		if ( ! ( $profile_res instanceof $class_name ) && isset( $profile_res['body'] )  ) {
 			$profile_obj = json_decode( $profile_res['body'] );
 		} else {
 			$profile_obj = null;
@@ -133,7 +133,7 @@ class Wooss_Sendbox_Shipping_API {
 				)
 			);
 			$oauth_obj = json_decode( $oauth_res['body'] );
-			if ( ! isset( $oauth_res['body'] ) && ! ( $oauth_res instanceof $class_name ) ) {
+			if ( ! ( $oauth_res instanceof $class_name ) && ! isset( $oauth_res['body'] ) ) {
 				return $api_key;
 			}
 
