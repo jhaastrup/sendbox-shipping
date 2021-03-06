@@ -73,6 +73,7 @@ class Wooss_Admin {
 		   * class.
 		   */
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/wooss-admin.css', array(), $this->version, 'all' );
+		wp_enqueue_style( 'wooss-select2', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css', array(), $this->version, 'all' );
 		wp_enqueue_style( 'wooss_shipping_methods_css_styles', plugin_dir_url( __FILE__ ) . '../includes/assets/css/styles.css', array(), $this->version, 'all' );
 	}
 
@@ -94,7 +95,9 @@ class Wooss_Admin {
 		 * class.
 		 */
 		wp_enqueue_script( 'jquery-ui-dialog' );
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wooss-admin.js', array( 'jquery' ), $this->version, false );
+		wp_enqueue_script( "wooss-select2", 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js', array( 'jquery' ), $this->version, false );
+		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wooss-admin.js', array( 'jquery', 'wooss-select2' ), $this->version, false );
+
 		wp_localize_script(
 			$this->plugin_name,
 			'wooss_ajax_object',
@@ -166,7 +169,8 @@ class Wooss_Admin {
 	public function field_for_request_shipments( $order ) {
 		global $post_type;
 		$order_id = $order->ID;
-		if ( 'shop_order' == $post_type ) {
+		$shipping_methods_enabled = get_option( 'wooss_option_enable' );
+		if ( 'shop_order' == $post_type && $shipping_methods_enabled != "no" ) {
 			$_order              = new WC_Order( $order_id );
 			$destination_name    = $_order->get_formatted_billing_full_name();
 			$destination_phone   = $_order->get_billing_phone();
@@ -254,28 +258,28 @@ class Wooss_Admin {
 			$wc_store_address    = get_option( 'woocommerce_store_address' );
 			$wooss_origin_city   = $sendbox_data['wooss_city'];
 			$wooss_origin_street = $sendbox_data['wooss_street'];
-			if ( null == $wooss_origin_city ) {
+			if ( ! $wooss_origin_city ) {
 				$wooss_origin_city = $wc_city;
 			}
-			if ( null == $wooss_origin_street ) {
+			if ( ! $wooss_origin_street ) {
 				$wooss_origin_street = $wc_store_address;
 			}
 			$wooss_origin_states_selected = $sendbox_data['wooss_state_name'];
-			if ( null == $wooss_origin_states_selected ) {
+			if ( ! $wooss_origin_states_selected ) {
 				$wooss_origin_states_selected = '';
 			}
 			$wooss_origin_country = $sendbox_data[ 'wooss_origin_country' ];
-			if ( null == $wooss_origin_country ) {
+			if ( ! $wooss_origin_country ) {
 				$wooss_origin_country = 'Nigeria';
 			}
 
 			$wooss_pickup_type = $sendbox_data['wooss_pickup_type'];
-			if ( null == $wooss_pickup_type ) {
+			if ( ! $wooss_pickup_type ) {
 				$wooss_pickup_type = 'pickup';
 			}
 
 			$incoming_option_code = $sendbox_data['wooss_pickup_type'];
-			if ( null == $incoming_option_code ) {
+			if ( ! $incoming_option_code ) {
 				return;
 			}
 
@@ -694,6 +698,7 @@ class Wooss_Admin {
 			$payload_data_json = wp_json_encode( $payload_data );
 
 			$shipments_args = array(
+                'timeout' => 30,
 				'headers' => array(
 					'Content-Type'  => 'application/json',
 					'Authorization' => $auth_header,
@@ -802,8 +807,11 @@ class Wooss_Admin {
 		if ( isset( $_POST['data'] ) && wp_verify_nonce( $_POST['security'], 'wooss-ajax-security-nonce' ) ) {
 
 			$country_code_default = sanitize_text_field( $_POST['data'] );
-			update_option( 'wooss_selected_country_code_used', $country_code_default );
+			$sendbox_data         = get_option('sendbox_data');
+			$sendbox_data['wooss_selected_country_code_used'] = $country_code_default;
+			update_option( 'sendbox_data', $sendbox_data );
 			$args                    = array(
+                'timeout' => 30,
 				'headers' => array(
 					'Content-Type' => 'application/json',
 				),
