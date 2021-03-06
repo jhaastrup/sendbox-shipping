@@ -42,8 +42,10 @@
         e
       ) {
         $("div.wooss-shipping-settings").hide();
-        if ($(this).prop("checked")) {
+        $('p.submit').show();
+        if ($(this).prop("checked") ) {
           $("div.wooss-shipping-settings").show();
+          $('p.submit').hide();
         }
       });
 
