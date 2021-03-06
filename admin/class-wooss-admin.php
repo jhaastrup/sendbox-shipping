@@ -547,8 +547,8 @@ class Wooss_Admin {
 				<?php
 
 							$country_code_default = 'NG';
-				if ( get_option( 'wooss_selected_country_code_used' ) ) {
-					$country_code_default = get_option( 'wooss_selected_country_code_used' );
+				if ( $sendbox_data[ 'wooss_selected_country_code_used' ] ) {
+					$country_code_default = $sendbox_data[ 'wooss_selected_country_code_used' ];
 				}
 
 						$city_api_url  = add_query_arg(
