@@ -126,6 +126,7 @@ function wooss_shipping_method() {
 
 					$profile_url                    = $api_call->get_sendbox_api_url( 'profile' );
 					$profile_args                   = array(
+						'timeout' => 10,
 						'headers' => array(
 							'Content-Type'  => 'application/json',
 							'Authorization' => $auth_header,
@@ -633,6 +634,7 @@ function wooss_calculate_shipping( $api_obj, $payload_array_data, $authorization
 	$payload_data_json = json_encode( $payload_data );
 
 	$delivery_args = array(
+        'timeout' => 10,
 		'headers' => array(
 			'Content-Type'  => 'application/json',
 			'Authorization' => $authorization_key,
