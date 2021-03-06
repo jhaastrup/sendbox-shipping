@@ -108,8 +108,8 @@ class WooSS_Public {
 	 * @return void
 	 */
 	public function add_extra_fees_to_order( $order_id ) {
-
-		$wooss_extra_fees = get_option( 'wooss_extra_fees' );
+		$sendbox_data = get_option('sendbox_data');
+		$wooss_extra_fees = $sendbox_data[ 'wooss_extra_fees' ];
 		update_post_meta( $order_id, 'wooss_extra_fees', 'Your additionnal fees is : ' . $wooss_extra_fees . get_woocommerce_currency() );
 	}
 }
