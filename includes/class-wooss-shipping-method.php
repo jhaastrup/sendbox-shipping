@@ -536,22 +536,13 @@ function connect_to_sendbox() {
 			'headers' => array(
 				'Content-Type'  => 'application/json',
 				'Authorization' => $sendbox_auth_token,
-				// 'Authorization' => $wooss_basic_auth,
 			),
 		);
 		$response_code_from_api = $api_call->get_api_response_code( $api_url, $args, 'GET' );
-		// $response_body_from_profile_api = $api_call->get_api_response_body($api_url, $args, 'GET');
-		// var_dump($response_code_from_api);
 		if ( 200 === $response_code_from_api ) {
 			$response_code = 1;
-			// update_option('wooss_connexion_status', $response_code);
 			update_option( 'wooss_connection_status', $response_code );
 			update_option( 'sendbox_data', $data );
-			// update_option('wooss_basic_auth', $wooss_basic_auth);
-			// update_option('sendbox_auth_token', $sendbox_auth_token);
-			// update_option('sendbox_refresh_token', $sendbox_refresh_token);
-			// update_option('sendbox_app_id', $sendbox_app_id);
-			// update_option('sendbox_client_secret', $sendbox_client_secret);
 
 		}
 	}
@@ -567,13 +558,12 @@ add_action( 'wp_ajax_save_fields_by_ajax', 'save_fields_by_ajax' );
  */
 function save_fields_by_ajax() {
 	$operation_success = 0;
+	//phpcs:disable
 	if ( isset( $_POST['data'] ) && wp_verify_nonce( $_POST['security'], 'wooss-ajax-security-nonce' ) ) {
 		$data             = wp_unslash( $_POST['data'] );
 		$sendbox_data     = get_option( 'sendbox_data' );
 		$new_sendbox_data = array_merge( $sendbox_data, $data );
-		// var_dump($new_sendbox_data);
 		update_option( 'sendbox_data', $new_sendbox_data );
-
 		$operation_success = 1;
 
 	}
@@ -582,24 +572,6 @@ function save_fields_by_ajax() {
 	wp_die();
 }
 
-
-/*
- add_filter( 'woocommerce_thankyou', 'woosb_update_order_status', 10, 1 );
-
-function woosb_update_order_status( $order_id ) {
-  if ( !$order_id ){
-	return;
-  }
-
-  $order = new WC_Order( $order_id );
-  if ( 'processing' == $order->get_status() ) {
-	  if (!current_user_can('administrator')){
-		$order->update_status( 'on-hold' );
-	  }
-  }
-  return $order_id;
-}
- */
 function action_wooss_checkout_update_order_review( $array, $int ) {
 
 	 // DO SOMETHING HERE???
