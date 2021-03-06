@@ -97,7 +97,6 @@ class Wooss_Sendbox_Shipping_API {
 		$api_key         = $sendbox_data_db['sendbox_auth_token'];
 		$profile_url     = 'https://live.sendbox.co/oauth/profile';
 
-
 		$profile_res = wp_remote_get(
 			$profile_url,
 			array(
@@ -108,7 +107,8 @@ class Wooss_Sendbox_Shipping_API {
 				),
 			)
 		);
-		if ( isset( $profile_res['body'] ) ) {
+		$class_name  = 'WP_Error';
+		if ( isset( $profile_res['body'] ) && ! ( $profile_res instanceof $class_name ) ) {
 			$profile_obj = json_decode( $profile_res['body'] );
 		} else {
 			$profile_obj = null;
@@ -133,7 +133,7 @@ class Wooss_Sendbox_Shipping_API {
 				)
 			);
 			$oauth_obj = json_decode( $oauth_res['body'] );
-			if ( ! isset( $oauth_res['body'] ) ) {
+			if ( ! isset( $oauth_res['body'] ) && ! ( $oauth_res instanceof $class_name ) ) {
 				return $api_key;
 			}
 
