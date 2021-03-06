@@ -111,10 +111,8 @@ clicking <a href = "http://bit.ly/sendbox-shipping-docs">Here</a> </b>
 <b>3.2.2</b>
 <p>bugs fixes and JS upgrade to use jqueryserilize</p>
 
-
-
-
-
+<b>3.3.0</b>
+<p>bug fixes </p>
 
 
 <h3> Arbitrary section </h3>

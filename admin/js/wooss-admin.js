@@ -145,6 +145,7 @@
                     if (response == 0) {
                         alert("An error occured");
                     } else if (response == 1) {
+                        alert("Shipment Successful");
                         window.location.reload();
                     } else if (response == 2 || response == 3) {
                         alert(

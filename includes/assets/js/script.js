@@ -51,7 +51,6 @@
 
       var wc_button_save = $("button.button-primary.woocommerce-save-button");
       wc_button_save.show();
-      //var wooss_basic_auth;
       var sendbox_auth_token;
       var sendbox_refresh_token;
       var sendbox_app_id;
@@ -114,7 +113,6 @@
         var wooss_street = $("input[name='wooss_street']").val();
         var wooss_pickup_type = $("select.wooss_pickup_type").val();
         var wooss_rates_type = $("select.wooss_rates_type").val();
-        //wooss_basic_auth = $("input[name='wooss_basic_auth']").val();
         sendbox_auth_token = $("input[name='sendbox_auth_token']").val();
         sendbox_refresh_token = $("input[name='sendbox_refresh_token']").val();
         sendbox_app_id = $("input[name='sendbox_app_id']").val();
@@ -127,7 +125,6 @@
           wooss_country: wooss_country,
           wooss_city: wooss_city,
           wooss_street: wooss_street,
-          //wooss_basic_auth: wooss_basic_auth,
           sendbox_auth_token: sendbox_auth_token,
           sendbox_refresh_token: sendbox_refresh_token,
           sendbox_app_id: sendbox_app_id,
@@ -150,7 +147,7 @@
               $(
                 '<div id="message" class="updated inline"><p><strong>Your settings have been synced.</strong></p></div>'
               ).insertAfter("br.clear");
-              alert('Your settings have been synced with success.');
+              alert('Your settings have been synced successful.');
               $('button.wooss_sync_changes_btn').hide();
               $('p.submit').show();
             } else {
