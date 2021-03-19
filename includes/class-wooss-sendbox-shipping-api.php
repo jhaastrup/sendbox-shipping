@@ -176,7 +176,7 @@ class Wooss_Sendbox_Shipping_API {
 			'Edo',
 			'Ekiti',
 			'Enugu ',
-			'Federal Capital Territory',
+			'Abuja',
 			'Gombe ',
 			'Jigawa ',
 			' Imo ',

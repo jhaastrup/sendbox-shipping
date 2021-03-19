@@ -202,6 +202,8 @@ function wooss_shipping_method() {
 
 					$delivery_quotes_details = wooss_calculate_shipping( $api_call, $payload_array_data, $auth_header );
 
+					//var_dump($delivery_quotes_details);
+					//die();
 					$wooss_rates_type = $sendbox_data['wooss_rates_type'];
 					if ( 'maximum' == $wooss_rates_type && isset( $delivery_quotes_details->max_quoted_fee ) ) {
 						$quotes_fee = $delivery_quotes_details->max_quoted_fee;
@@ -229,7 +231,9 @@ function wooss_shipping_method() {
 						}
 
 						$quoted_fee = $quotes_fee + $wooss_extra_fees;
-					}
+					} 
+
+
 
 					$new_rate = array(
 						'id'      => $this->id,
@@ -647,7 +651,7 @@ function wooss_calculate_shipping( $api_obj, $payload_array_data, $authorization
 
 	$delivery_quotes_url     = $api_obj->get_sendbox_api_url( 'delivery_quote' );
 	$delivery_quotes_details = $api_obj->get_api_response_body( $delivery_quotes_url, $delivery_args, 'POST' );
-
+	//
 	return $delivery_quotes_details;
 }
 
